@@ -16,23 +16,32 @@ export default function AdminPanel() {
   const [queue, setQueue] = useState(1);
   const [bannerText, setBannerText] = useState("");
 
+  const resetQueue = async () => {
+    await setDoc(
+      doc(db, "currentCall", "data"),
+      { name: "", queue: 1, calledAt: Timestamp.now() },
+      { merge: true }
+    );
+    setQueue(1);
+  };
+
   useEffect(() => {
     const fetchQueue = async () => {
       const docRef = doc(db, "currentCall", "data");
       const docSnap = await getDoc(docRef);
-  
+
       if (docSnap.exists()) {
         const data = docSnap.data();
-  
+
         const now = new Date();
         const lastCallTime = data.calledAt?.toDate?.() || null;
-  
+
         if (lastCallTime) {
           const sameDay =
             now.getFullYear() === lastCallTime.getFullYear() &&
             now.getMonth() === lastCallTime.getMonth() &&
             now.getDate() === lastCallTime.getDate();
-  
+
           if (sameDay) {
             setQueue(data.queue + 1); // Aynı gün → devam et
           } else {
@@ -41,13 +50,13 @@ export default function AdminPanel() {
         } else {
           setQueue(1); // Veri yoksa başla
         }
-  
+
         setBannerText(data.bannerText || "");
       } else {
         setQueue(1); // Belge hiç yoksa başla
       }
     };
-  
+
     fetchQueue();
   }, []);
 
@@ -112,6 +121,13 @@ export default function AdminPanel() {
           className="mt-4 bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 w-full"
         >
           Çağır (Sıra: {queue})
+        </button>
+
+        <button
+          onClick={resetQueue}
+          className="mt-6 bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-black w-full max-w-xl"
+        >
+          🔄 Sırayı Sıfırla (1’den Başlat)
         </button>
       </div>
       {/* Reklam / Uyarı Mesajı */}

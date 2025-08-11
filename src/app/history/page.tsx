@@ -1,41 +1,78 @@
+// src/app/history/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { db } from "@/firebase/firebaseConfig";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { Timestamp } from "firebase/firestore";
-
+import {
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  where,
+  Timestamp,
+  writeBatch,
+  doc,
+} from "firebase/firestore";
 
 interface HistoryItem {
   id: string;
   name: string;
   queue: number;
-  calledAt: Timestamp;
+  calledAt: any;
 }
 
 export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [cleaning, setCleaning] = useState(false);
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      const q = query(collection(db, "history"), orderBy("calledAt", "desc"));
-      const snapshot = await getDocs(q);
-      const data: HistoryItem[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<HistoryItem, "id">),
+    const run = async () => {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+      // 1) BUGÜNÜ ÇEK
+      const qToday = query(
+        collection(db, "history"),
+        where("calledAt", ">=", Timestamp.fromDate(startOfToday)),
+        where("calledAt", "<", Timestamp.fromDate(endOfToday)),
+        orderBy("calledAt", "desc")
+      );
+      const snapToday = await getDocs(qToday);
+      const todayData: HistoryItem[] = snapToday.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<HistoryItem, "id">),
       }));
-      setHistory(data);
+      setHistory(todayData);
+
+      // 2) DÜN VE ÖNCESİNİ TEMİZLE
+      setCleaning(true);
+      const qOld = query(
+        collection(db, "history"),
+        where("calledAt", "<", Timestamp.fromDate(startOfToday))
+      );
+      const snapOld = await getDocs(qOld);
+
+      if (!snapOld.empty) {
+        const batch = writeBatch(db);
+        snapOld.docs.forEach((d) => batch.delete(doc(db, "history", d.id)));
+        await batch.commit();
+      }
+      setCleaning(false);
     };
 
-    fetchHistory();
+    run();
   }, []);
 
   return (
     <main className="min-h-screen p-6 bg-gray-50 text-gray-800">
-      <h1 className="text-2xl font-bold mb-4">📋 Çağrılan Pasientlər</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">📋 Bugünkü Hasta Çağrıları</h1>
+        {cleaning && <span className="text-sm text-gray-500">Dünkü kayıtlar temizleniyor…</span>}
+      </div>
 
       {history.length === 0 ? (
-        <p>Çağrılan Pasient yoxdur.</p>
+        <p>Bugün için çağrılan hasta bulunmuyor.</p>
       ) : (
         <table className="w-full border-collapse">
           <thead>
