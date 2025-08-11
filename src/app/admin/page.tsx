@@ -212,7 +212,7 @@ export default function AdminPanel() {
               className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               type="number"
               min={1}
-              placeholder="Manuel sıra no"
+              placeholder="Manual sıra nömrəsi"
               value={manualQueue}
               onChange={(e) => setManualQueue(e.target.value)}
             />
@@ -222,7 +222,7 @@ export default function AdminPanel() {
               className={`px-4 py-3 rounded-lg cursor-pointer font-semibold text-white transition
                 ${!name.trim() || !manualQueue.trim() || saving ? "bg-emerald-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700 cursor-pointer"}`}
             >
-              Özel Çağır
+              Özəl Çağır
             </button>
           </div>
         </div>
