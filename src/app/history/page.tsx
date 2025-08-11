@@ -18,7 +18,7 @@ interface HistoryItem {
   id: string;
   name: string;
   queue: number;
-  calledAt: any;
+  calledAt: Timestamp;
 }
 
 export default function HistoryPage() {
@@ -88,7 +88,7 @@ export default function HistoryPage() {
                 <td className="p-2 border">{item.queue}</td>
                 <td className="p-2 border">{item.name}</td>
                 <td className="p-2 border">
-                  {new Date(item.calledAt.seconds * 1000).toLocaleTimeString()}
+                  {item.calledAt.toDate().toLocaleTimeString()}
                 </td>
               </tr>
             ))}
