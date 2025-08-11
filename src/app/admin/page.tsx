@@ -185,7 +185,7 @@ export default function AdminPanel() {
             onChange={(e) => setIsInstrumental(e.target.checked)}
           />
           <span className="text-md text-gray-600 font-semibold ">
-            İnstrumental müayinədən gələn
+            Eyni gündə təkrar müayinəyə gələn
           </span>
         </label>
 

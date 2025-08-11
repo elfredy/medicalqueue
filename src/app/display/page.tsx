@@ -68,7 +68,7 @@ export default function DisplayScreen() {
         <p className="text-3xl font-semibold mb-2 text-gray-700">📢 Növbəti Pasient</p>
         {isInstrumental && (
           <p className="text-3xl font-semibold text-emerald-700 mb-3">
-            İnstrumental müayinədən gələn
+             Eyni gündə təkrar müayinəyə gələn
           </p>
         )}
         <h1 className="text-5xl md:text-6xl font-bold text-blue-600">
